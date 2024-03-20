@@ -1,0 +1,28 @@
+/*
+
+    JaCaMo Project File
+
+    This file defines the initial state of the MAS (initial agents, environment, organisation, ....)
+
+*/
+
+mas wake_up_mas {
+
+    agent personal_assistant : task2/personal_assistant.asl {
+        
+        focus : room.wristband
+        focus : room.mattress
+        focus : room.blinds
+        focus : room.lights
+        focus : room.calendar
+    }
+    
+    workspace room {
+
+        artifact wristband: task2.Wristband
+        artifact mattress : task2.Mattress
+        artifact blinds : task2.Blinds
+        artifact lights : task2.LightBulb
+        artifact calendar : task2.CalendarService
+    }
+}
