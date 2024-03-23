@@ -3,15 +3,15 @@
 /* Initial rules */
 
 // Inference rule for infering the belief requires_brightening if the target illuminance is higher than the current illuminance
-requires_brightening :- target_illuminance(Target) & current_illuminance(Current) & Target  > Current.
+requires_brightening :- target_illuminance(Target) & current_illuminance(Current) & (Target  - Current) > 100.
 
 // Inference rule for infering the belief requires_darkening if the target illuminance is lower than the current illuminance
-requires_darkening :- target_illuminance(Target) & current_illuminance(Current) & Target < Current.
+requires_darkening :- target_illuminance(Target) & current_illuminance(Current) & (Current - Target) > 100.
 
 /* Initial beliefs */
 
 // The agent believes that the target illuminance is 400 lux
-target_illuminance(400).
+target_illuminance(350).
 
 /* Initial goals */
 
@@ -38,7 +38,7 @@ target_illuminance(400).
  * Body: the agent performs the action of turning on the lights
 */
 @increase_illuminance_with_lights_plan
-+!manage_illuminance : lights("off") & requires_brightening <-
++!manage_illuminance : lights("off") & weather("cloudy") & requires_brightening <-
     .print("Turning on the lights");
     turnOnLights. // performs the action of turning on the lights
 
@@ -60,7 +60,7 @@ target_illuminance(400).
  * Body: the agent performs the action of raising the blinds
 */
 @increase_illuminance_with_blinds_plan
-+!manage_illuminance : blinds("lowered") &  requires_brightening <-
++!manage_illuminance : blinds("lowered") & weather("sunny") & requires_brightening <-
     .print("Raising the blinds");
     raiseBlinds. // performs the action of raising the blinds
 
@@ -74,6 +74,21 @@ target_illuminance(400).
 +!manage_illuminance:  blinds("raised") & requires_darkening <-
     .print("Lowering the blinds");
     lowerBlinds. // performs the action of lowering the blinds
+
+/*
+* Plan to check if target illuminance is reached
+*/
+@check_target_illuminance_plan
++!manage_illuminance: current_illuminance(Current) <-
+    .print("Target illuminance is reached.").
+
+/*
+*Puts the blinds down, if it is cloudy
+*/
+@blinds_down_because_cloudy_plan
+-weather("sunny"): weather("cloudy") & blinds("raised") <-
+    .print("Lower the blinds because it is cloudy");
+    lowerBlinds.
 
 /* 
  * Plan for reacting to the addition of the belief current_illuminance(Current)
